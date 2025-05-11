@@ -1,4 +1,33 @@
-echo "node_modules/" >> .gitignore
-echo "*.log" >> .gitignore
-echo ".env" >> .gitignore
-echo ".env.test" >> .gitignore
+# Dependency directories
+node_modules/
+
+# Build output
+.next/
+out/
+dist/
+
+# System files
+.DS_Store
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Environment files
+.env
+.env.test
+
+# Editor directories and files
+.vscode/
+.idea/
+*.swp
+
+# Optional: OS-related
+Thumbs.db
+Desktop.ini
+
+# Custom configs (optional — if generated)
+components.json
