@@ -21,23 +21,22 @@ exports.getFlights = async (req, res) => {
   }
 };
 
-// Search flights by origin and/or destination
+// Search flights by origin and destination (only if both are provided)
 exports.searchFlights = async (req, res) => {
   try {
-    const query = {};
+    const { origin, destination } = req.query;
 
-    if (req.query.origin) {
-      const origin = req.query.origin.trim();
-      query.origin = { $regex: new RegExp(origin, 'i') };
+    // Return empty array if either origin or destination is missing
+    if (!origin || !destination) {
+      return res.status(200).json([]);
     }
 
-    if (req.query.destination) {
-      const destination = req.query.destination.trim();
-      query.destination = { $regex: new RegExp(destination, 'i') };
-    }
+    const flights = await Flight.find({
+      origin: { $regex: new RegExp(origin.trim(), 'i') },
+      destination: { $regex: new RegExp(destination.trim(), 'i') }
+    });
 
-    const flights = await Flight.find(query);
-    res.json(flights);
+    res.status(200).json(flights);
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
