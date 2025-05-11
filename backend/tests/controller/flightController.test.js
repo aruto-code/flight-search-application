@@ -102,8 +102,8 @@ describe('Flight Controller (Integration with real DB)', () => {
     expect(deleted).toBeNull();
   });
 
-  it('should return flights matching both origin and destination', async () => {
-    // Create multiple flights
+  it('should return flights matching origin, destination, and date', async () => {
+    // Insert flights into the test DB
     const flights = [
       {
         flightId: '6E456',
@@ -127,12 +127,16 @@ describe('Flight Controller (Integration with real DB)', () => {
 
     await Flight.insertMany(flights);
 
-    const res = await request(app).get('/api/flights/search?origin=del&destination=mum');
+    const response = await request(app).get('/api/flights/search')
+      .query({
+        origin: 'delhi',
+        destination: 'bangalore',
+        date: '2025-05-11'
+      });
 
-    expect(res.statusCode).toBe(200);
-    expect(res.body.length).toBe(1);
-    expect(res.body[0].origin.toLowerCase()).toBe('delhi');
-    expect(res.body[0].destination.toLowerCase()).toBe('mumbai');
+    expect(response.status).toBe(200);
+    expect(response.body).toHaveLength(1);
+    expect(response.body[0].flightId).toBe('6E456');
   });
 
   it('should not return flights when no query params are given', async () => {
@@ -190,5 +194,23 @@ describe('Flight Controller (Integration with real DB)', () => {
     const resDest = await request(app).get('/api/flights/search?destination=chennai');
     expect(resDest.statusCode).toBe(200);
     expect(resDest.body.length).toBe(0);
+  });
+
+  it('should not return flights matching date only', async () => {
+    const flightData = {
+      flightId: '6E124',
+      origin: 'mumbai',
+      destination: 'kolkata',
+      airline: 'IndiGo',
+      price: 3600,
+      departureTime: new Date('2025-05-10T10:00:00.000Z'),
+      arrivalTime: new Date('2025-05-10T12:30:00.000Z')
+    };
+
+    await Flight.insertMany(flightData);
+
+    const resDateOnly = await request(app).get('/api/flights/search?date=2025-05-10');
+    expect(resDateOnly.statusCode).toBe(200);
+    expect(resDateOnly.body.length).toBe(0);
   });
 });
