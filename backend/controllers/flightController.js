@@ -1,4 +1,5 @@
 const Flight = require('../models/Flight');
+const moment = require('moment-timezone');
 
 // Create a new flight
 exports.createFlight = async (req, res) => {
@@ -24,19 +25,33 @@ exports.getFlights = async (req, res) => {
 // Search flights by origin and destination (only if both are provided)
 exports.searchFlights = async (req, res) => {
   try {
-    const { origin, destination } = req.query;
+    const { origin, destination, date } = req.query;
 
-    // Return empty array if either origin or destination is missing
-    if (!origin || !destination) {
+    // Return empty array if any parameter is missing
+    if (!origin || !destination || !date) {
       return res.status(200).json([]);
     }
 
+    const searchDate = new Date(date);
+    const nextDate = new Date(searchDate);
+    nextDate.setDate(searchDate.getDate() + 1);
+
     const flights = await Flight.find({
       origin: { $regex: new RegExp(origin.trim(), 'i') },
-      destination: { $regex: new RegExp(destination.trim(), 'i') }
+      destination: { $regex: new RegExp(destination.trim(), 'i') },
+      departureTime: {
+        $gte: searchDate,
+        $lt: nextDate
+      }
     });
 
-    res.status(200).json(flights);
+    const formattedFlights = flights.map(flight => ({
+      ...flight.toObject(),
+      departureTimeIST: moment(flight.departureTime).tz('Asia/Kolkata').format('DD MMM YYYY, hh:mm A'),
+      arrivalTimeIST: moment(flight.arrivalTime).tz('Asia/Kolkata').format('DD MMM YYYY, hh:mm A')
+    }));
+
+    res.status(200).json(formattedFlights);
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
