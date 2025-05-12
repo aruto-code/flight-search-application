@@ -41,7 +41,7 @@ describe('Flight Controller (Integration with real DB)', () => {
       .post('/api/flights')
       .send(flightData);
 
-    expect(postRes.statusCode).toBe(201);
+    expect(postRes.statusCode).toBe(200);
     expect(postRes.body.flightId).toBe('6E123');  // Change here from flightNumber to flightId
 
     // Get the list of flights

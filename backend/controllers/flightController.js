@@ -6,7 +6,7 @@ exports.createFlight = async (req, res) => {
   try {
     const flight = new Flight(req.body);
     await flight.save();
-    res.status(201).json(flight);
+    res.status(200).json(flight);
   } catch (err) {
     res.status(500).json({ error: 'Failed to create flight' });
   }
