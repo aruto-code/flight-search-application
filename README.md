@@ -44,8 +44,8 @@ Ensure you have the following installed::
 
 ### 1. Clone the Repository
 
-git clone https://github.com/your-username/flight-search-application.git
-cd flight-search-application
+    git clone https://github.com/aruto-code/flight-search-application.git
+    cd flight-search-application
 
 
 ---
