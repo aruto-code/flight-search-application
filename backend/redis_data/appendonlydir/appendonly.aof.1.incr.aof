@@ -1,0 +1,37 @@
+*2
+$6
+SELECT
+$1
+0
+*5
+$3
+SET
+$33
+search:delhi:bangalore:2025-05-06
+$301
+[{"_id":"6818b9698a7f8068871cd8b2","flightId":"AI302","origin":"Delhi","destination":"Bangalore","departureTime":"2025-05-06T09:00:00.000Z","arrivalTime":"2025-05-06T11:30:00.000Z","price":6999,"airline":"Air India","departureTimeIST":"06 May 2025, 02:30 PM","arrivalTimeIST":"06 May 2025, 05:00 PM"}]
+$4
+PXAT
+$13
+1747146791134
+*2
+$6
+SELECT
+$1
+0
+*2
+$3
+DEL
+$33
+search:delhi:bangalore:2025-05-06
+*5
+$3
+SET
+$27
+search:delhi:mum:2025-05-06
+$298
+[{"_id":"6818ba968a7f8068871cd8b3","flightId":"AI101","origin":"Delhi","destination":"Mumbai","departureTime":"2025-05-06T06:00:00.000Z","arrivalTime":"2025-05-06T08:00:00.000Z","price":4500,"airline":"Air India","departureTimeIST":"06 May 2025, 11:30 AM","arrivalTimeIST":"06 May 2025, 01:30 PM"}]
+$4
+PXAT
+$13
+1747147169705
