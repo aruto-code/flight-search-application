@@ -6,18 +6,17 @@ A full-stack application that allows users to search for flights. Built with:
 - **Frontend**: Next.js (React) with Tailwind CSS
 
 ## 📚 Table of Contents
-- [Project Structure](#-project-structure)
-- [Prerequisites](#-prerequisites)
-- [Getting Started](#-getting-started)
-- [Backend Setup](#-backend-setup)
-- [Run Backend Tests](#-run-backend-tests)
-- [Frontend Setup](#-ui-frontend-setup)
-- [Build Frontend for Production](#-build-frontend-for-production)
-- [Demo](#-demo)
-- [Folder Highlights](#-folder-highlights)
-- [Technologies Used](#-technologies-used)
-- [TODOs](#-todos)
-- [Contact](#-contact)
+- [Project Structure](#project-structure)
+- [Prerequisites](#prerequisites)
+- [Getting Started](#getting-started)
+- [Backend Setup](#backend-setup)
+- [Run Backend Tests](#run-backend-tests)
+- [UI (Frontend) Setup](#ui-frontend-setup)
+- [Build Frontend for Production](#build-frontend-for-production)
+- [Demo](#demo)
+- [Folder Highlights](#folder-highlights)
+- [Technologies Used](#technologies-used)
+- [Contact](#contact)
 
 ---
 
