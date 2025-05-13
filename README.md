@@ -22,10 +22,10 @@ A full-stack application that allows users to search for flights. Built with:
 
 ## 📁 Project Structure
 
-flight-search-application/
-├── backend/       → Express backend (REST + Redis)
-├── ui/            → Next.js frontend (React + Tailwind)
-├── README.md      → Project documentation
+    flight-search-application/
+    ├── backend/       → Express backend (REST + Redis)
+    ├── ui/            → Next.js frontend (React + Tailwind)
+    ├── README.md      → Project documentation
 
 ---
 
