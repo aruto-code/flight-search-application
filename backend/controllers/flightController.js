@@ -18,15 +18,20 @@ exports.getFlights = async (req, res) => {
   try {
     const cacheKey = 'all_flights';
 
-    const cached = await client.get(cacheKey);
-    if (cached) {
-      return res.status(200).json(JSON.parse(cached));
+    // Only use cache if not in test environment
+    if (process.env.NODE_ENV !== 'test') {
+      const cached = await client.get(cacheKey);
+      if (cached) {
+        return res.status(200).json(JSON.parse(cached));
+      }
     }
 
     const flights = await Flight.find();
 
-    // Cache result for 5 minutes
-    await client.set(cacheKey, JSON.stringify(flights), { EX: 300 });
+    // Only cache if not in test environment
+    if (process.env.NODE_ENV !== 'test') {
+      await client.set(cacheKey, JSON.stringify(flights), { EX: 300 });
+    }
 
     res.status(200).json(flights);
   } catch (err) {
@@ -47,11 +52,13 @@ exports.searchFlights = async (req, res) => {
     const cacheKey = `search:${origin}:${destination}:${date}`;
     console.log(`Checking cache for key: ${cacheKey}`);
 
-    // Check Redis cache
-    const cached = await client.get(cacheKey);
-    if (cached) {
-      console.log(`Cache hit for ${cacheKey}`);
-      return res.status(200).json(JSON.parse(cached)); // Return cached result
+    // Only check Redis if not in test environment
+    if (process.env.NODE_ENV !== 'test') {
+      const cached = await client.get(cacheKey);
+      if (cached) {
+        console.log(`Cache hit for ${cacheKey}`);
+        return res.status(200).json(JSON.parse(cached)); // Return cached result
+      }
     }
 
     console.log(`Cache miss for ${cacheKey}. Fetching from database...`);
@@ -73,15 +80,19 @@ exports.searchFlights = async (req, res) => {
       arrivalTimeIST: moment(flight.arrivalTime).tz('Asia/Kolkata').format('DD MMM YYYY, hh:mm A')
     }));
 
-    console.log(`Caching result for ${cacheKey} for 5 minutes`);
-    // Cache the result for 5 minutes (300 seconds)
-    await client.set(cacheKey, JSON.stringify(formattedFlights), { EX: 300 }, (err, reply) => {
-      if (err) {
-        console.error(`Error setting cache for ${cacheKey}:`, err);
-      } else {
-        console.log(`Cache set for ${cacheKey}: ${reply}`);
-      }
-    });
+    // Cache only if not in test environment
+    if (process.env.NODE_ENV !== 'test') {
+      console.log(`Caching result for ${cacheKey} for 5 minutes`);
+      await client.set(cacheKey, JSON.stringify(formattedFlights), { EX: 300 }, (err, reply) => {
+        if (err) {
+          console.error(`Error setting cache for ${cacheKey}:`, err);
+        } else {
+          console.log(`Cache set for ${cacheKey}: ${reply}`);
+        }
+      });
+    } else {
+      console.log('Skipping Redis cache during test');
+    }
 
     res.status(200).json(formattedFlights);
   } catch (err) {
