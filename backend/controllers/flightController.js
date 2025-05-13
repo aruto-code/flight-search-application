@@ -1,4 +1,5 @@
 const Flight = require('../models/Flight');
+const client = require('../redis/redisClient');
 const moment = require('moment-timezone');
 
 // Create a new flight
@@ -15,7 +16,18 @@ exports.createFlight = async (req, res) => {
 // Get all flights
 exports.getFlights = async (req, res) => {
   try {
+    const cacheKey = 'all_flights';
+
+    const cached = await client.get(cacheKey);
+    if (cached) {
+      return res.status(200).json(JSON.parse(cached));
+    }
+
     const flights = await Flight.find();
+
+    // Cache result for 5 minutes
+    await client.set(cacheKey, JSON.stringify(flights), { EX: 300 });
+
     res.status(200).json(flights);
   } catch (err) {
     res.status(500).json({ error: 'Failed to fetch flights' });
@@ -27,22 +39,32 @@ exports.searchFlights = async (req, res) => {
   try {
     const { origin, destination, date } = req.query;
 
-    // Return empty array if any parameter is missing
     if (!origin || !destination || !date) {
+      console.log('Invalid request: missing origin, destination, or date');
       return res.status(200).json([]);
     }
+
+    const cacheKey = `search:${origin}:${destination}:${date}`;
+    console.log(`Checking cache for key: ${cacheKey}`);
+
+    // Check Redis cache
+    const cached = await client.get(cacheKey);
+    if (cached) {
+      console.log(`Cache hit for ${cacheKey}`);
+      return res.status(200).json(JSON.parse(cached)); // Return cached result
+    }
+
+    console.log(`Cache miss for ${cacheKey}. Fetching from database...`);
 
     const searchDate = new Date(date);
     const nextDate = new Date(searchDate);
     nextDate.setDate(searchDate.getDate() + 1);
 
+    // Query the database for flights
     const flights = await Flight.find({
       origin: { $regex: new RegExp(origin.trim(), 'i') },
       destination: { $regex: new RegExp(destination.trim(), 'i') },
-      departureTime: {
-        $gte: searchDate,
-        $lt: nextDate
-      }
+      departureTime: { $gte: searchDate, $lt: nextDate }
     });
 
     const formattedFlights = flights.map(flight => ({
@@ -51,8 +73,19 @@ exports.searchFlights = async (req, res) => {
       arrivalTimeIST: moment(flight.arrivalTime).tz('Asia/Kolkata').format('DD MMM YYYY, hh:mm A')
     }));
 
+    console.log(`Caching result for ${cacheKey} for 5 minutes`);
+    // Cache the result for 5 minutes (300 seconds)
+    await client.set(cacheKey, JSON.stringify(formattedFlights), { EX: 300 }, (err, reply) => {
+      if (err) {
+        console.error(`Error setting cache for ${cacheKey}:`, err);
+      } else {
+        console.log(`Cache set for ${cacheKey}: ${reply}`);
+      }
+    });
+
     res.status(200).json(formattedFlights);
   } catch (err) {
+    console.error('Error searching flights:', err);
     res.status(500).json({ message: err.message });
   }
 };
